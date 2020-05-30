@@ -24,6 +24,20 @@ TEST(CircularBuffer, capacity_match)
 	ASSERT_EQ(121, buff2.capacity());
 }
 
+TEST(CircularBuffer, copy_constructing)
+{
+	CircularBuffer<int> buffer(3);
+	buffer.push_back(2);
+	buffer.push_back(3);
+
+	CircularBuffer<int> buffer2(buffer);
+	ASSERT_EQ(3, buffer2.capacity());
+	ASSERT_EQ(2, buffer2.size());
+
+	ASSERT_EQ(2, buffer2[0]);
+	ASSERT_EQ(3, buffer2[1]);
+}
+
 TEST(CircularBuffer, push_back)
 {
 	CircularBuffer<int> buffer;
@@ -109,6 +123,11 @@ TEST(CircularBuffer, index_operator)
 
 	ASSERT_EQ(3, buffer[0]);
 	ASSERT_EQ(1, buffer[1]);
+
+	const CircularBuffer<int> buffer2(buffer);
+
+	ASSERT_EQ(3, buffer2[0]);
+	ASSERT_EQ(1, buffer2[1]);
 }
 
 TEST(CircularBuffer, at)
@@ -120,4 +139,10 @@ TEST(CircularBuffer, at)
 	ASSERT_EQ(3, buffer.at(0));
 	ASSERT_EQ(1, buffer.at(1));
 	ASSERT_THROW(buffer.at(2), std::out_of_range);
+
+	const CircularBuffer<int> cbuffer(buffer);
+
+	ASSERT_EQ(3, cbuffer.at(0));
+	ASSERT_EQ(1, cbuffer.at(1));
+	ASSERT_THROW(cbuffer.at(2), std::out_of_range);
 }

@@ -21,6 +21,7 @@ public:
 	static constexpr size_type DEFAULT_SIZE = 20;
 
 	explicit CircularBuffer(size_type capacity = DEFAULT_SIZE, const allocator_type& allocator = allocator_type());
+	CircularBuffer(const self_type& other);
 	~CircularBuffer();
 
 	size_type size() const noexcept;
@@ -235,6 +236,29 @@ typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::check_capacity(
 		throw std::length_error("capacity is bigger than allocator max_size");
 	}
 	return capacity;
+}
+
+template<typename T, typename A>
+CircularBuffer<T, A>::CircularBuffer(const CircularBuffer::self_type& other)
+:allocator_(other.allocator_),
+capacity_(other.capacity_),
+buffer_(std::allocator_traits<A>::allocate(allocator_, capacity_, 0)),
+size_(0),
+head_(other.head_)
+{
+	try
+	{
+		for(size_type i = 0; i < other.size_; ++i)
+		{
+			push_back(other[i]);
+		}
+	}
+	catch (...)
+	{
+		clear();
+		std::allocator_traits<A>::deallocate(allocator_, buffer_, capacity_);
+		throw;
+	}
 }
 
 namespace std
