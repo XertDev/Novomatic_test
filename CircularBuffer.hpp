@@ -8,6 +8,7 @@ template<typename T, typename A = std::allocator<T>>
 class CircularBuffer
 {
 public:
+	typedef CircularBuffer<T, A> self_type;
 	typedef A allocator_type;
 	typedef typename allocator_type::value_type value_type;
 	typedef typename allocator_type::pointer pointer;
@@ -22,24 +23,26 @@ public:
 	explicit CircularBuffer(size_type capacity = DEFAULT_SIZE, const allocator_type& allocator = allocator_type());
 	~CircularBuffer();
 
-	size_type size() const;
-	size_type capacity() const;
-	[[nodiscard]] bool empty() const;
-	size_type max_size() const;
+	size_type size() const noexcept;
+	size_type capacity() const noexcept ;
+	[[nodiscard]] bool empty() const noexcept ;
+	size_type max_size() const noexcept ;
 
 
-	reference front();
-	const_reference front() const;
+	reference front() noexcept;
+	const_reference front() const noexcept;
 
-	reference back();
-	const_reference back() const;
+	reference back() noexcept;
+	const_reference back() const noexcept ;
 
 	void clear();
 
 	void push_back(const_reference val);
-	void pop_front();
+	void pop_front() noexcept ;
 
 	allocator_type get_allocator() const;
+
+	void swap(self_type &other) noexcept;
 
 private:
 	allocator_type allocator_;
@@ -86,49 +89,49 @@ typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::internal_index(si
 }
 
 template<typename T, typename A>
-typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::size() const
+typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::size() const noexcept
 {
 	return size_;
 }
 
 template<typename T, typename A>
-typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::capacity() const
+typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::capacity() const noexcept
 {
 	return capacity_;
 }
 
 template<typename T, typename A>
-bool CircularBuffer<T, A>::empty() const
+bool CircularBuffer<T, A>::empty() const noexcept
 {
 	return size_ == 0;
 }
 
 template<typename T, typename A>
-typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::max_size() const
+typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::max_size() const noexcept
 {
 	return std::numeric_limits<size_type>::max();
 }
 
 template<typename T, typename A>
-typename CircularBuffer<T, A>::reference CircularBuffer<T, A>::front()
+typename CircularBuffer<T, A>::reference CircularBuffer<T, A>::front() noexcept
 {
 	return buffer_[head_];
 }
 
 template<typename T, typename A>
-typename CircularBuffer<T, A>::const_reference CircularBuffer<T, A>::front() const
+typename CircularBuffer<T, A>::const_reference CircularBuffer<T, A>::front() const noexcept
 {
 	return buffer_[head_];
 }
 
 template<typename T, typename A>
-typename CircularBuffer<T, A>::reference CircularBuffer<T, A>::back()
+typename CircularBuffer<T, A>::reference CircularBuffer<T, A>::back() noexcept
 {
 	return buffer_[internal_index(size_-1)];
 }
 
 template<typename T, typename A>
-typename CircularBuffer<T, A>::const_reference CircularBuffer<T, A>::back() const
+typename CircularBuffer<T, A>::const_reference CircularBuffer<T, A>::back() const noexcept
 {
 	return buffer_[internal_index(size_-1)];
 }
@@ -154,7 +157,7 @@ void CircularBuffer<T, A>::push_back(const_reference val)
 }
 
 template<typename T, typename A>
-void CircularBuffer<T, A>::pop_front()
+void CircularBuffer<T, A>::pop_front() noexcept
 {
 	allocator_.destroy(buffer_ + head_);
 	if(++head_ >= capacity_)
@@ -170,5 +173,24 @@ typename CircularBuffer<T, A>::allocator_type CircularBuffer<T, A>::get_allocato
 	return allocator_;
 }
 
+template<typename T, typename A>
+void CircularBuffer<T, A>::swap(self_type& other) noexcept
+{
+	using std::swap;
+
+	swap(buffer_, other.buffer_);
+	swap(capacity_, other.capacity_);
+	swap(size_, other.size_);
+	swap(head_, other.head_);
+}
+
+namespace std
+{
+		template<typename T, typename A>
+		void swap(CircularBuffer<T, A>& lhs, CircularBuffer<T, A>& rhs)
+		{
+			lhs.swap(rhs);
+		}
+}
 
 #endif //NOVOMATIC_CIRCULARBUFFER_HPP

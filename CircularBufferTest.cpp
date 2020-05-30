@@ -75,3 +75,23 @@ TEST(CircularBuffer, push_back_overwrite_front)
 	ASSERT_EQ(2, buffer.back());
 }
 
+TEST(CircularBuffer, swap)
+{
+	CircularBuffer<int> buffer1(2);
+	CircularBuffer<int> buffer2(3);
+	buffer1.push_back(1);
+	buffer1.push_back(2);
+	buffer2.push_back(3);
+
+	std::swap(buffer1, buffer2);
+
+	ASSERT_EQ(1, buffer1.size());
+	ASSERT_EQ(2, buffer2.size());
+
+	ASSERT_EQ(1, buffer2.front());
+	ASSERT_EQ(2, buffer2.back());
+	ASSERT_EQ(3, buffer1.front());
+
+	ASSERT_EQ(2, buffer2.capacity());
+	ASSERT_EQ(3, buffer1.capacity());
+}
