@@ -28,6 +28,11 @@ public:
 	[[nodiscard]] bool empty() const noexcept ;
 	size_type max_size() const noexcept ;
 
+	reference operator[](size_type index);
+	const_reference operator[](size_type index) const;
+
+	reference at(size_type index);
+	const_reference at(size_type index) const;
 
 	reference front() noexcept;
 	const_reference front() const noexcept;
@@ -52,12 +57,13 @@ private:
 	size_type head_;
 
 	size_type internal_index(size_type i) const;
+	static size_type check_capacity(size_type capacity, const allocator_type& allocator);
 };
 
 template<typename T, typename A>
 CircularBuffer<T, A>::CircularBuffer(size_type capacity, const allocator_type& allocator)
 :allocator_(allocator),
-capacity_(capacity),
+capacity_(check_capacity(capacity, allocator_)),
 buffer_(std::allocator_traits<A>::allocate(allocator_, capacity, 0)),
 size_(0),
 head_(0)
@@ -182,6 +188,53 @@ void CircularBuffer<T, A>::swap(self_type& other) noexcept
 	swap(capacity_, other.capacity_);
 	swap(size_, other.size_);
 	swap(head_, other.head_);
+}
+
+template<typename T, typename A>
+typename CircularBuffer<T, A>::reference CircularBuffer<T, A>::operator[](size_type index)
+{
+	return buffer_[internal_index(index)];
+}
+
+template<typename T, typename A>
+typename CircularBuffer<T, A>::const_reference CircularBuffer<T, A>::operator[](CircularBuffer::size_type index) const
+{
+	return buffer_[internal_index(index)];
+}
+
+template<typename T, typename A>
+typename CircularBuffer<T, A>::reference CircularBuffer<T, A>::at(CircularBuffer::size_type index)
+{
+	if(index >= size_)
+	{
+		throw std::out_of_range("");
+	}
+	return (*this)[index];
+}
+
+template<typename T, typename A>
+typename CircularBuffer<T, A>::const_reference CircularBuffer<T, A>::at(CircularBuffer::size_type index) const
+{
+	if(index >= size_)
+	{
+		throw std::out_of_range("");
+	}
+	return (*this)[index];}
+
+template<typename T, typename A>
+typename CircularBuffer<T, A>::size_type CircularBuffer<T, A>::check_capacity(
+		size_type capacity, const allocator_type& allocator
+		)
+{
+	if(capacity < 1)
+	{
+		throw std::length_error("capacity must be bigger than 0");
+	}
+	if(capacity > std::allocator_traits<A>::max_size(allocator))
+	{
+		throw std::length_error("capacity is bigger than allocator max_size");
+	}
+	return capacity;
 }
 
 namespace std

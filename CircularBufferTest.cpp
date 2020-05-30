@@ -10,6 +10,11 @@ TEST(CircularBuffer, default_constructor_info)
 	ASSERT_TRUE(buffer.empty());
 }
 
+TEST(CircularBuffer, constructor_capacity_validation)
+{
+	ASSERT_THROW(CircularBuffer<int> a(0), std::length_error);
+}
+
 TEST(CircularBuffer, capacity_match)
 {
 	CircularBuffer<int> buff1(100);
@@ -94,4 +99,25 @@ TEST(CircularBuffer, swap)
 
 	ASSERT_EQ(2, buffer2.capacity());
 	ASSERT_EQ(3, buffer1.capacity());
+}
+
+TEST(CircularBuffer, index_operator)
+{
+	CircularBuffer<int> buffer;
+	buffer.push_back(3);
+	buffer.push_back(1);
+
+	ASSERT_EQ(3, buffer[0]);
+	ASSERT_EQ(1, buffer[1]);
+}
+
+TEST(CircularBuffer, at)
+{
+	CircularBuffer<int> buffer;
+	buffer.push_back(3);
+	buffer.push_back(1);
+
+	ASSERT_EQ(3, buffer.at(0));
+	ASSERT_EQ(1, buffer.at(1));
+	ASSERT_THROW(buffer.at(2), std::out_of_range);
 }
