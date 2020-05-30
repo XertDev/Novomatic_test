@@ -1,5 +1,4 @@
 #include "MorphPicker.hpp"
-#include <algorithm>
 #include <numeric>
 
 std::array<int, 4> pickMorphs(const std::vector<float>& weights)

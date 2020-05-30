@@ -8,7 +8,7 @@ find_package(GTest)
 
 add_library(morph MorphPicker.cpp MorphPicker.hpp)
 
-add_executable(novoTest MorphPickerTest.cpp)
+add_executable(novoTest MorphPickerTest.cpp CircularBufferTest.cpp CircularBuffer.hpp)
 target_link_libraries(novoTest GTest::GTest gmock gtest_main)
 target_link_libraries(novoTest morph)
 
